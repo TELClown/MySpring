@@ -1,7 +1,7 @@
-package com.chr.service;
+package com.chr.Test;
 
 import com.chr.spring.annotation.ComponentScan;
 
-@ComponentScan("com.chr.service")
+@ComponentScan("com.chr.Test.service")
 public class AppConfig {
 }

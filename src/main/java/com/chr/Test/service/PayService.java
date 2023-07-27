@@ -1,4 +1,4 @@
-package com.chr.service;
+package com.chr.Test.service;
 
 import com.chr.spring.annotation.Component;
 import com.chr.spring.annotation.Scope;

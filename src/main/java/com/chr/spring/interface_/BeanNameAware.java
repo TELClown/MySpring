@@ -1,4 +1,4 @@
-package com.chr.spring.aware;
+package com.chr.spring.interface_;
 
 public interface BeanNameAware {
     void setBeanName(String beanName);
