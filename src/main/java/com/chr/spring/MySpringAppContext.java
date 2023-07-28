@@ -4,6 +4,7 @@ import com.chr.spring.annotation.Autowired;
 import com.chr.spring.annotation.Component;
 import com.chr.spring.annotation.ComponentScan;
 import com.chr.spring.annotation.Scope;
+import com.chr.spring.framework.beans.factory.BeanDefinition;
 import com.chr.spring.interface_.BeanNameAware;
 import com.chr.spring.exception.BeanException;
 import com.chr.spring.interface_.InitializingBean;
@@ -23,7 +24,7 @@ public class MySpringAppContext {
     //配置文件
     private Class appConfig;
     //存储bean信息
-    private ConcurrentHashMap<String,BeanDefinition> BeanDefinitionHashMap = new ConcurrentHashMap();
+    private ConcurrentHashMap<String, BeanDefinition> BeanDefinitionHashMap = new ConcurrentHashMap();
 
     //存储单例bean对象
     private ConcurrentHashMap<String,Object> singletonObjects = new ConcurrentHashMap<>();

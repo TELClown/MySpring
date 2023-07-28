@@ -10,6 +10,11 @@ public class BeanException extends RuntimeException{
         this.message = message;
     }
 
+    public BeanException(String message,Throwable e){
+        super(message,e);
+        this.message = message;
+    }
+
     @Override
     public String getMessage() {
         return message;

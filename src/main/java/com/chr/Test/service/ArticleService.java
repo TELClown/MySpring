@@ -3,12 +3,17 @@ package com.chr.Test.service;
 import com.chr.spring.annotation.Autowired;
 import com.chr.spring.annotation.Component;
 
-@Component
-public class ArticleService {
-    @Autowired
-    UserService userService ;
-    public void test(){
-        System.out.println("article ===="+userService);
 
+public class ArticleService {
+
+    private String name;
+
+    public String getName() {
+        return name;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }
