@@ -2,7 +2,16 @@ package com.chr.spring.framework.beans.factory;
 
 public class BeanDefinition {
 
+    private PropertyValues propertyValues;
+    //bean类型
+    private Class Type;
+    //bean是单例还是多例
+    private String Scope;
+    private String initMethodName;
+    private String destroyMethodName;
+
     public BeanDefinition(){};
+
     public BeanDefinition(Class Type){
         this(Type,null);
     }
@@ -11,10 +20,21 @@ public class BeanDefinition {
         this.Type = Type;
         this.propertyValues = propertyValues != null ? propertyValues : new PropertyValues();
     }
-    //bean类型
-    private Class Type;
-    //bean是单例还是多例
-    private String Scope;
+
+    public String getInitMethodName() {
+        return initMethodName;
+    }
+
+    public void setInitMethodName(String initMethodName) {
+        this.initMethodName = initMethodName;
+    }
+
+    public String getDestroyMethodName() {
+        return destroyMethodName;
+    }
+    public void setDestroyMethodName(String destroyMethodName) {
+        this.destroyMethodName = destroyMethodName;
+    }
 
     public PropertyValues getPropertyValues() {
         return propertyValues;
@@ -23,8 +43,6 @@ public class BeanDefinition {
     public void setPropertyValues(PropertyValues propertyValues) {
         this.propertyValues = propertyValues;
     }
-
-    private PropertyValues propertyValues;
 
     public Class getType() {
         return Type;

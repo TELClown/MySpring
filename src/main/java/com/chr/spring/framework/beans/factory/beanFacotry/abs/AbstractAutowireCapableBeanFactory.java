@@ -1,17 +1,26 @@
 package com.chr.spring.framework.beans.factory.beanFacotry.abs;
 
+import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.StrUtil;
 import com.chr.spring.exception.BeanException;
 import com.chr.spring.framework.beans.factory.BeanDefinition;
+import com.chr.spring.framework.beans.factory.DisposableBean;
+import com.chr.spring.framework.beans.factory.InitializingBean;
 import com.chr.spring.framework.beans.factory.PropertyValue;
+import com.chr.spring.framework.beans.factory.aware.BeanFactoryAware;
 import com.chr.spring.framework.beans.factory.beanFacotry.BeanReference;
 import com.chr.spring.framework.beans.factory.beanFacotry.Strategy.SimpleInstantiationStrategy;
+import com.chr.spring.framework.beans.factory.beanFacotry.adapter.DisposableBeanAdapter;
+import com.chr.spring.framework.beans.factory.beanFacotry.intf.AutowireCapableBeanFactory;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanPostProcessor;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.InstantiationStrategy;
 import com.chr.spring.utils.BeanUtil;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
-public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory{
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+
     //默认使用无参构造实例化对象
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
 
@@ -40,23 +49,50 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         //实例化bean之后执行初始化方法
         bean = initializeBean(beanName, bean,beanDefinition);
 
+        //注册带有销毁方法的bean
+        registerDisposableBeanIfNecessary(beanName,bean,beanDefinition);
+
         //将该实例对象存入单例池中
         addSingletonBean(beanName, bean);
         return bean;
     }
 
+    /**
+     * 注册有销毁方法的bean，即bean继承自DisposableBean或有自定义的销毁方法
+     *
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     */
+    protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if(bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())){
+            registerDisposableBean(beanName,new DisposableBeanAdapter(bean, beanName, beanDefinition.getDestroyMethodName()));
+        }
+    }
+
     protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
-        Object wrappedBean = applyBeanPostBeforeInitialization(bean,beanName);
+        //让实现了BeanFactoryAware的bean能够感知到BeanFactory
+        if(bean instanceof BeanFactoryAware){
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
 
-        initializingBean(beanName,wrappedBean,beanDefinition);
+        Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean,beanName);
 
-        wrappedBean = applyBeanPostAfterInitialization(bean,beanName);
+        try {
+            initializingBean(beanName,wrappedBean,beanDefinition);
+        } catch (Exception e) {
+            throw new BeanException("Failed to initialize "+ beanName,e);
+        }
+
+        wrappedBean = applyBeanPostProcessorsAfterInitialization(bean,beanName);
 
         return wrappedBean;
     }
 
-    public Object applyBeanPostBeforeInitialization(Object bean, String beanName) {
-        Object result = bean;
+
+    @Override
+    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeanException {
+        Object result = existingBean;
         for (BeanPostProcessor beanPostProcessor: getBeanPostProcessors()) {
             Object current = beanPostProcessor.postProcessBeforeInitialization(result, beanName);
             if(current == null){
@@ -66,9 +102,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
         return result;
     }
-    public Object applyBeanPostAfterInitialization(Object bean, String beanName) {
 
-        Object result = bean;
+    @Override
+    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeanException {
+        Object result = existingBean;
         for (BeanPostProcessor beanPostProcessor: getBeanPostProcessors()) {
             Object current = beanPostProcessor.postProcessAfterInitialization(result, beanName);
             if(current == null){
@@ -77,11 +114,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             result = current;
         }
         return result;
-
     }
 
-    public void initializingBean(String beanName, Object wrappedBean, BeanDefinition beanDefinition) {
-        System.out.println("bean初始化调用");
+    public void initializingBean(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
+        if(bean instanceof InitializingBean){
+            ((InitializingBean)bean).afterPropertiesSet();
+        }
+        String initMethodName = beanDefinition.getInitMethodName();
+        if(StrUtil.isNotEmpty(initMethodName)){
+            Method initMethod = ClassUtil.getPublicMethod(beanDefinition.getType(), initMethodName);
+            if(initMethod == null){
+                throw new BeanException("Failed to load initialization method");
+            }
+            initMethod.invoke(bean);
+        }
     }
 
 

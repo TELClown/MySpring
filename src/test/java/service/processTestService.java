@@ -1,9 +1,7 @@
-package com.chr.Test.service;
+package service;
 
-import com.chr.spring.annotation.Component;
 import com.chr.spring.exception.BeanException;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanPostProcessor;
-import com.chr.spring.interface_.MySpringBeanProcessor;
 
 //@Component
 public class processTestService implements BeanPostProcessor {

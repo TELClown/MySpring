@@ -1,4 +1,4 @@
-package com.chr.Test.service;
+package service;
 
 import com.chr.spring.annotation.Autowired;
 import com.chr.spring.annotation.Component;

@@ -14,5 +14,5 @@ public interface BeanFactoryPostProcessor {
      *
      * @throws BeanException
      */
-    void postProcessBeanFactory() throws BeanException;
+    void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeanException;
 }

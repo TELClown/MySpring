@@ -5,11 +5,12 @@ import com.chr.spring.framework.beans.factory.BeanDefinition;
 import com.chr.spring.framework.beans.factory.beanFacotry.DefaultSingletonBeanRegistry;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanFactory;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanPostProcessor;
+import com.chr.spring.framework.beans.factory.beanFacotry.intf.ConfigurableBeanFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
     private final List<BeanPostProcessor> beanPostProcessorList = new ArrayList<>();
 
     @Override
@@ -22,6 +23,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         //单例池中不存在则创建一个bean并返回
         BeanDefinition beanDefinition = getBeanDefinition(beanName);
         return createBean(beanName,beanDefinition);
+    }
+
+    @Override
+    public <T> T getBean(String beanName, Class<T> required) throws BeanException {
+        return ((T) getBean(beanName));
     }
 
     //重复对象则直接覆盖
