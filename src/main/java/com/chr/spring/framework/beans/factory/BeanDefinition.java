@@ -6,7 +6,7 @@ public class BeanDefinition {
     //bean类型
     private Class Type;
     //bean是单例还是多例
-    private String Scope;
+    private String Scope = "singleton";
     private String initMethodName;
     private String destroyMethodName;
 
@@ -49,7 +49,7 @@ public class BeanDefinition {
     }
 
     public void setType(Class type) {
-        Type = type;
+        this.Type = type;
     }
 
     public String getScope() {
@@ -57,6 +57,6 @@ public class BeanDefinition {
     }
 
     public void setScope(String scope) {
-        Scope = scope;
+        this.Scope = scope;
     }
 }

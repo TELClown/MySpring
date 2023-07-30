@@ -10,4 +10,6 @@ public interface SingletonBeanRegistry {
 
     //获取单例
     Object getSingletonBean(String beanName);
+
+    void addSingleton(String beanName, Object singletonObject);
 }

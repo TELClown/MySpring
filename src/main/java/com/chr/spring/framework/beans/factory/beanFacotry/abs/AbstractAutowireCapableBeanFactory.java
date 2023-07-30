@@ -52,8 +52,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         //注册带有销毁方法的bean
         registerDisposableBeanIfNecessary(beanName,bean,beanDefinition);
 
-        //将该实例对象存入单例池中
-        addSingletonBean(beanName, bean);
+        //判断该bean是否为单例bean，若是则将该bean存入单例池中
+        if(!beanDefinition.getScope().equals("prototype")){
+            addSingletonBean(beanName, bean);
+        }
         return bean;
     }
 
@@ -65,10 +67,23 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param beanDefinition
      */
     protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
-        if(bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())){
-            registerDisposableBean(beanName,new DisposableBeanAdapter(bean, beanName, beanDefinition.getDestroyMethodName()));
+        //判断该bean是否为单例bean，是单例bean才将其加入销毁池中
+        if(!beanDefinition.getScope().equals("prototype")){
+            //判断该bean是否实现了DisposableBean接口 或者 自定义销毁方法 ，若是则将其加入到销毁池中
+            if(bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())){
+                registerDisposableBean(beanName,new DisposableBeanAdapter(bean, beanName, beanDefinition.getDestroyMethodName()));
+            }
         }
     }
+
+    /**
+     * 执行bean初始化流程
+     *
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     * @return
+     */
 
     protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
         //让实现了BeanFactoryAware的bean能够感知到BeanFactory
@@ -76,20 +91,31 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             ((BeanFactoryAware) bean).setBeanFactory(this);
         }
 
+        //执行前置初始化
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean,beanName);
 
+        //执行初始化
         try {
             initializingBean(beanName,wrappedBean,beanDefinition);
         } catch (Exception e) {
             throw new BeanException("Failed to initialize "+ beanName,e);
         }
 
+        //执行后置初始化
         wrappedBean = applyBeanPostProcessorsAfterInitialization(bean,beanName);
 
         return wrappedBean;
     }
 
 
+    /**
+     * 前置初始化流程
+     *
+     * @param existingBean
+     * @param beanName
+     * @return
+     * @throws BeanException
+     */
     @Override
     public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeanException {
         Object result = existingBean;
@@ -103,6 +129,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return result;
     }
 
+    /**
+     * 后置初始化流程
+     *
+     * @param existingBean
+     * @param beanName
+     * @return
+     * @throws BeanException
+     */
     @Override
     public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeanException {
         Object result = existingBean;
@@ -116,6 +150,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return result;
     }
 
+    /**
+     * bean初始化
+     *
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     * @throws Exception
+     */
     public void initializingBean(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
         if(bean instanceof InitializingBean){
             ((InitializingBean)bean).afterPropertiesSet();

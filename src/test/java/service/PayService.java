@@ -7,7 +7,7 @@ import com.chr.spring.framework.beans.factory.InitializingBean;
 
 @Component
 @Scope("Prototype")
-public class PayService implements InitializingBean, DisposableBean {
+public class PayService implements InitializingBean{
     public ArticleService getArticleService() {
         return articleService;
     }
@@ -39,11 +39,6 @@ public class PayService implements InitializingBean, DisposableBean {
 
     public void setArticleService(ArticleService articleService) {
         this.articleService = articleService;
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        System.out.println("执行销毁方法");
     }
 
     @Override

@@ -22,6 +22,11 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
         return singletonObjects.get(beanName);
     }
 
+    @Override
+    public void addSingleton(String beanName, Object singletonObject) {
+        singletonObjects.put(beanName,singletonObject);
+    }
+
     //注册单例bean
     public void addSingletonBean(String beanName, Object singletonBean) {
         singletonObjects.put(beanName,singletonBean);
