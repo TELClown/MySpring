@@ -1,32 +1,29 @@
 
+import com.chr.spring.framework.aop.AdvisedSupport;
+import com.chr.spring.framework.aop.TargetSource;
+import com.chr.spring.framework.aop.adapter.MethodAfterAdviceInterceptor;
+import com.chr.spring.framework.aop.adapter.MethodAroundAdviceInterceptor;
+import com.chr.spring.framework.aop.adapter.MethodBeforeAdviceInterceptor;
+import com.chr.spring.framework.aop.aspectj.AspectJExpressionPointCut;
+import com.chr.spring.framework.aop.framework.CglibAopProxy;
+import com.chr.spring.framework.aop.framework.ProxyFactory;
+import com.chr.spring.framework.aop.intf.MethodMatcher;
 import com.chr.spring.framework.beans.factory.beanFacotry.DefaultListableBeanFactory;
 import com.chr.spring.framework.beans.factory.beanFacotry.xml.XmlBeanDefinitionReader;
 import com.chr.spring.framework.context.ClassPathXmlApplicationContext;
 import event.CustomEvent;
-import service.ArticleService;
-import service.AwareService;
-import service.PayService;
-import service.TestFactoryBean;
+import service.*;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 public class SpringTest {
 
 
-    public static void main(String[] args) throws IOException {
-
-
+    public static void main(String[] args) throws IOException, NoSuchMethodException {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:MySpring.xml");
-
-//        PayService payService = applicationContext.getBean("payService", PayService.class);
-//        System.out.println(payService);
-//
-//        ArticleService articleService = applicationContext.getBean("testFactoryBean", ArticleService.class);
-//        System.out.println(articleService.getName());
-
-        applicationContext.publishEvent(new CustomEvent(applicationContext));
-        applicationContext.registerShutdownHook();
-
+        ArticleService article = applicationContext.getBean("article", ArticleService.class);
+        article.testAOP();
     }
 
 }

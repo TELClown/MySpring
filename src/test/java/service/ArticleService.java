@@ -9,6 +9,9 @@ import com.chr.spring.framework.context.intf.ApplicationContext;
 
 public class ArticleService{
 
+    public void testAOP(){
+        System.out.println("AOP!");
+    }
     private String name;
 
     public String getName() {

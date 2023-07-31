@@ -1,6 +1,9 @@
 package com.chr.spring.framework.context.abs;
 
 import com.chr.spring.exception.BeanException;
+import com.chr.spring.framework.aop.aspectj.AspectJExpressionPointcutAdvisor;
+import com.chr.spring.framework.beans.factory.BeanDefinition;
+import com.chr.spring.framework.beans.factory.PropertyValue;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanFactoryPostProcessor;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanPostProcessor;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.ConfigurableListableBeanFactory;
@@ -37,6 +40,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         //BeanPostProcessor需要提前在其他bean实例化之前注册
         registerBeanPostProcessors(beanFactory);
 
+        //注册AspectJExpressionPointcutAdvisor
+        registerAspectJExpressionPointcutAdvisor(beanFactory);
+
         //初始化事件发布者
         initApplicationEventMulticaster();
 
@@ -48,6 +54,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
         //发布容器刷新完成事件
         finishRefresh();
+    }
+
+    private void registerAspectJExpressionPointcutAdvisor(ConfigurableListableBeanFactory beanFactory) {
+        ConcurrentHashMap<String, AspectJExpressionPointcutAdvisor> aopBeanMap = beanFactory.getBeanByType(AspectJExpressionPointcutAdvisor.class);
+            for (String aopBeanName: aopBeanMap.keySet()) {
+                BeanDefinition beanDefinition = beanFactory.getBeanDefinition(aopBeanName);
+                PropertyValue expression = beanDefinition.getPropertyValues().getPropertyValue("expression");
+                String value = (String) expression.getValue();
+                aopBeanMap.get(aopBeanName).setExpression(value);
+            }
     }
 
     @Override
@@ -79,9 +95,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
      */
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory){
         ConcurrentHashMap<String, BeanPostProcessor> beanByType = beanFactory.getBeanByType(BeanPostProcessor.class);
-        for (BeanPostProcessor beanPostProcessor : beanByType.values()) {
-            beanFactory.addBeanPostProcessor(beanPostProcessor);
-        }
+            for (BeanPostProcessor beanPostProcessor : beanByType.values()) {
+                beanFactory.addBeanPostProcessor(beanPostProcessor);
+            }
     }
 
     /**

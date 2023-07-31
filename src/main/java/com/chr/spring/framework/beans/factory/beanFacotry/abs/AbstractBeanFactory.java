@@ -33,7 +33,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
         //单例池中不存在则创建一个bean并返回
         BeanDefinition beanDefinition = getBeanDefinition(beanName);
-        return createBean(beanName,beanDefinition);
+        Object bean1 = createBean(beanName, beanDefinition);
+        return getObjectBeanForBean(bean1,beanName);
     }
 
     /**
