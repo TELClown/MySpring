@@ -1,19 +1,29 @@
 package service;
 
-import com.chr.spring.annotation.Autowired;
-import com.chr.spring.annotation.Component;
+import com.chr.spring.framework.beans.factory.beanFacotry.anno.Autowired;
+import com.chr.spring.framework.beans.factory.beanFacotry.anno.Value;
+import com.chr.spring.framework.context.stereotyep.Component;
 import com.chr.spring.interface_.BeanNameAware;
 import com.chr.spring.interface_.InitializingBean;
 
 @Component
 public class UserService implements BeanNameAware, InitializingBean {
-    @Autowired
-    private PayService payService;
 
+    @Value("user1")
     private String beanName;
-    public void test(){
-        System.out.println("user===== "+payService);
+
+    public int getNum() {
+        return num;
     }
+
+    public ArticleService getArticleService() {
+        return articleService;
+    }
+
+    @Autowired
+    ArticleService articleService;
+    @Value("1")
+    private Integer num;
 
     public String getBeanName() {
         return beanName;

@@ -6,6 +6,9 @@ import com.chr.spring.framework.beans.factory.beanFacotry.abs.AbstractAutowireCa
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanDefinitionRegistry;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.ConfigurableListableBeanFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,5 +57,21 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             }
         });
         return beanMap;
+    }
+
+    public <T> T getBean(Class<T> requiredType) throws BeanException {
+        List<String> beanNames = new ArrayList<>();
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+            Class beanClass = entry.getValue().getType();
+            if (requiredType.isAssignableFrom(beanClass)) {
+                beanNames.add(entry.getKey());
+            }
+        }
+        if (beanNames.size() == 1) {
+            return getBean(beanNames.get(0), requiredType);
+        }
+
+        throw new BeanException(requiredType + "expected single bean but found " +
+                beanNames.size() + ": " + beanNames);
     }
 }

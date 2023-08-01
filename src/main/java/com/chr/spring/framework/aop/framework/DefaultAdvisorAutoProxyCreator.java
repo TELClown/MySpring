@@ -5,8 +5,10 @@ import com.chr.spring.framework.aop.AdvisedSupport;
 import com.chr.spring.framework.aop.TargetSource;
 import com.chr.spring.framework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import com.chr.spring.framework.aop.intf.Advisor;
+import com.chr.spring.framework.aop.intf.ClassFilter;
 import com.chr.spring.framework.aop.intf.PointCut;
 import com.chr.spring.framework.beans.factory.BeanDefinition;
+import com.chr.spring.framework.beans.factory.PropertyValues;
 import com.chr.spring.framework.beans.factory.aware.BeanFactoryAware;
 import com.chr.spring.framework.beans.factory.beanFacotry.DefaultListableBeanFactory;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanFactory;
@@ -34,6 +36,32 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeanException {
+        if(isInfrastructureClass(bean.getClass())){
+            return bean;
+        }
+        Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeanByType(AspectJExpressionPointcutAdvisor.class).values();
+        try{
+            for (AspectJExpressionPointcutAdvisor advisor: advisors) {
+                AdvisedSupport advisedSupport = new AdvisedSupport();
+                ClassFilter classFilter = advisor.getPointcut().getClassFilter();
+                if(classFilter.matches(bean.getClass())){
+                    //设置被代理对象
+                    TargetSource targetSource = new TargetSource(bean);
+                    advisedSupport.setTargetSource(targetSource);
+
+                    //设置方法匹配
+                    advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+
+                    //设置增强方法
+                    advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+
+                    //返回代理对象
+                    return new ProxyFactory(advisedSupport).getProxy();
+                }
+            }
+        }catch (Exception e){
+            throw new BeanException("Error create proxy object for name:"+ beanName,e);
+        }
         return bean;
     }
 
@@ -47,35 +75,17 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
      */
     @Override
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeanException {
-        if(isInfrastructureClass(beanClass)){
-            return null;
-        }
-        Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeanByType(AspectJExpressionPointcutAdvisor.class).values();
-        try{
-            for (AspectJExpressionPointcutAdvisor advisor: advisors) {
-                AdvisedSupport advisedSupport = new AdvisedSupport();
-
-                //实例化当前bean对象
-                BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-                Object bean = beanFactory.getInstantiationStrategy().instantiationStrategy(beanDefinition);
-
-                //设置被代理对象
-                TargetSource targetSource = new TargetSource(bean);
-                advisedSupport.setTargetSource(targetSource);
-
-                //设置方法匹配
-                advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
-
-                //设置增强方法
-                advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
-
-                //返回代理对象
-                return new ProxyFactory(advisedSupport).getProxy();
-            }
-        }catch (Exception e){
-            throw new BeanException("Error create proxy object for name:"+ beanName,e);
-        }
         return null;
+    }
+
+    @Override
+    public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeanException {
+        return true;
+    }
+
+    @Override
+    public PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeanException {
+        return pvs;
     }
 
     private boolean isInfrastructureClass(Class<?> beanClass) {

@@ -22,8 +22,9 @@ public class SpringTest {
 
     public static void main(String[] args) throws IOException, NoSuchMethodException {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:MySpring.xml");
-        ArticleService article = applicationContext.getBean("article", ArticleService.class);
-        article.testAOP();
+        WorldService worldService = applicationContext.getBean("worldService", WorldService.class);
+        worldService.test("a","s");
+
     }
 
 }

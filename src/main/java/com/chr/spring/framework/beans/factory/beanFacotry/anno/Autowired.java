@@ -1,4 +1,4 @@
-package com.chr.spring.annotation;
+package com.chr.spring.framework.beans.factory.beanFacotry.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

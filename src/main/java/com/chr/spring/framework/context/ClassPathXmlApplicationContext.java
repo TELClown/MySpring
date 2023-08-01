@@ -31,4 +31,9 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
     protected String[] getConfigLocations() {
         return this.configLocations;
     }
+
+    @Override
+    public <T> T getBean(Class<T> requiredType) throws BeanException {
+        return null;
+    }
 }

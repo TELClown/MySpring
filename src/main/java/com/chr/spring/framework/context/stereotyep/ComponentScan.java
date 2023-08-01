@@ -1,4 +1,4 @@
-package com.chr.spring.annotation;
+package com.chr.spring.framework.context.stereotyep;
 
 
 import java.lang.annotation.ElementType;

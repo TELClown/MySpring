@@ -8,6 +8,7 @@ import com.chr.spring.framework.beans.factory.PropertyValue;
 import com.chr.spring.framework.beans.factory.beanFacotry.BeanReference;
 import com.chr.spring.framework.beans.factory.beanFacotry.abs.AbstractBeanDefinitionReader;
 import com.chr.spring.framework.beans.factory.beanFacotry.intf.BeanDefinitionRegistry;
+import com.chr.spring.framework.context.annotation.ClassPathBeanDefinitionScanner;
 import com.chr.spring.framework.core.io.Resource;
 import com.chr.spring.framework.core.io.ResourceLoader;
 import org.dom4j.Document;
@@ -35,9 +36,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     public static final String REF_ATTRIBUTE = "ref";
     public static final String INIT_METHOD_ATTRIBUTE = "init-method";
     public static final String DESTROY_METHOD_ATTRIBUTE = "destroy-method";
-
     public static final String SCOPE_ATTRIBUTE = "scope";
-
+    public static final String BASE_PACKAGE_ATTRIBUTE = "base-package";
+    public static final String COMPONENT_SCAN_ELEMENT = "component-scan";
 
     public XmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         super(registry);
@@ -47,6 +48,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         super(registry, resourceLoader);
     }
 
+    @Override
+    public void loadBeanDefinitions(String location) throws BeanException {
+        ResourceLoader resourceLoader = getResourceLoader();
+        Resource resource = resourceLoader.getResource(location);
+        loadBeanDefinitions(resource);
+    }
 
     @Override
     public void loadBeanDefinitions(Resource resource) throws BeanException {
@@ -66,8 +73,19 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         SAXReader reader = new SAXReader();
         Document document = reader.read(inputStream);
 
-        Element beans = document.getRootElement();
-        List<Element> beanList = beans.elements(BEAN_ELEMENT);
+        Element root = document.getRootElement();
+
+        //解析context:component-scan标签并扫描指定包中的类，提取类信息，组装成BeanDefinition
+        Element componentScan = root.element(COMPONENT_SCAN_ELEMENT);
+        if (componentScan != null) {
+            String scanPath = componentScan.attributeValue(BASE_PACKAGE_ATTRIBUTE);
+            if (StrUtil.isEmpty(scanPath)) {
+                throw new BeanException("The value of base-package attribute can not be empty or null");
+            }
+            scanPackage(scanPath);
+        }
+
+        List<Element> beanList = root.elements(BEAN_ELEMENT);
         for (Element bean : beanList) {
             String beanId = bean.attributeValue(ID_ATTRIBUTE);
             String beanName = bean.attributeValue(NAME_ATTRIBUTE);
@@ -122,10 +140,14 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         }
     }
 
-    @Override
-    public void loadBeanDefinitions(String location) throws BeanException {
-        ResourceLoader resourceLoader = getResourceLoader();
-        Resource resource = resourceLoader.getResource(location);
-        loadBeanDefinitions(resource);
+    /**
+     * 扫描注解Component的类，提取信息，组装成BeanDefinition
+     *
+     * @param scanPath
+     */
+    private void scanPackage(String scanPath) {
+        String[] basePackages = StrUtil.splitToArray(scanPath, ',');
+        ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(getRegistry());
+        scanner.doScan(basePackages);
     }
 }

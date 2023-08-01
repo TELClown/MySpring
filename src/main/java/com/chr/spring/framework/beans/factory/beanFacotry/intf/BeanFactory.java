@@ -28,4 +28,6 @@ public interface BeanFactory {
      * @throws BeanException
      */
     <T> T getBean(String beanName, Class<T> required) throws BeanException;
+    <T> T getBean(Class<T> requiredType) throws BeanException;
+
 }

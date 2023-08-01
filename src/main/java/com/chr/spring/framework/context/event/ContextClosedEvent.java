@@ -1,7 +1,6 @@
-package com.chr.spring.framework.context.exent;
+package com.chr.spring.framework.context.event;
 
-import com.chr.spring.framework.context.exent.abs.ApplicationContextEvent;
-import com.chr.spring.framework.context.exent.abs.ApplicationEvent;
+import com.chr.spring.framework.context.event.abs.ApplicationContextEvent;
 import com.chr.spring.framework.context.intf.ApplicationContext;
 
 public class ContextClosedEvent extends ApplicationContextEvent {

@@ -1,12 +1,9 @@
 package service;
 
-import com.chr.spring.annotation.Component;
-import com.chr.spring.annotation.Scope;
-import com.chr.spring.framework.beans.factory.DisposableBean;
+import com.chr.spring.framework.context.stereotyep.Component;
+import com.chr.spring.framework.context.stereotyep.Scope;
 import com.chr.spring.framework.beans.factory.InitializingBean;
 
-@Component
-@Scope("Prototype")
 public class PayService implements InitializingBean{
     public ArticleService getArticleService() {
         return articleService;

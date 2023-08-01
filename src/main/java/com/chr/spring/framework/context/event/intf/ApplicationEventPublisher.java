@@ -1,6 +1,6 @@
-package com.chr.spring.framework.context.exent.intf;
+package com.chr.spring.framework.context.event.intf;
 
-import com.chr.spring.framework.context.exent.abs.ApplicationEvent;
+import com.chr.spring.framework.context.event.abs.ApplicationEvent;
 
 /**
  * 事件发布者接口

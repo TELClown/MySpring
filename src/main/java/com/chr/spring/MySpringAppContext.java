@@ -1,9 +1,9 @@
 package com.chr.spring;
 
-import com.chr.spring.annotation.Autowired;
-import com.chr.spring.annotation.Component;
-import com.chr.spring.annotation.ComponentScan;
-import com.chr.spring.annotation.Scope;
+import com.chr.spring.framework.beans.factory.beanFacotry.anno.Autowired;
+import com.chr.spring.framework.context.stereotyep.Component;
+import com.chr.spring.framework.context.stereotyep.ComponentScan;
+import com.chr.spring.framework.context.stereotyep.Scope;
 import com.chr.spring.framework.beans.factory.BeanDefinition;
 import com.chr.spring.interface_.BeanNameAware;
 import com.chr.spring.exception.BeanException;

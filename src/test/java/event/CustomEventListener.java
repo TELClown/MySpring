@@ -1,6 +1,6 @@
 package event;
 
-import com.chr.spring.framework.context.exent.intf.ApplicationListener;
+import com.chr.spring.framework.context.event.intf.ApplicationListener;
 
 public class CustomEventListener implements ApplicationListener<CustomEvent> {
     @Override

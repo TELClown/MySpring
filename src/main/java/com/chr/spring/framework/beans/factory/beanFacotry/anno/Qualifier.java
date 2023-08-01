@@ -1,4 +1,4 @@
-package com.chr.spring.annotation;
+package com.chr.spring.framework.beans.factory.beanFacotry.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Scope {
+@Target(ElementType.FIELD)
+public @interface Qualifier {
     String value() default "";
 }

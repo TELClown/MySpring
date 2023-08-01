@@ -37,10 +37,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @return
      */
     protected Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
-        //用于判断该bean是否应该直接返回代理对象
+        //除非自己实现InstantiationAwareBeanPostProcessor接口，否则永远返回null
         Object bean = applyBeanPostProcessorsBeforeInitialization(beanDefinition.getType(), beanName);
         if(bean != null){
-            //执行后置初始化
+            //执行bean的后置初始化
             bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);;
         }
         return bean;
@@ -76,24 +76,24 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Object bean = null;
         try {
             bean = createBeanInstance(beanDefinition);
+            //设置属性之前判断该bean是否能够设置属性
+            boolean isSetPropertyValues = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
+            if(!isSetPropertyValues){
+                return bean;
+            }
+
+            //允许在bean实例化之后，对bean属性进行修改
+            applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
+
+            //调用applyPropertyValues方法为bean设置属性值
+            applyPropertyValues(beanName, bean,beanDefinition);
+
+            //实例化bean之后执行初始化方法
+            bean = initializeBean(beanName, bean,beanDefinition);
+
         } catch (Exception e) {
             throw new BeanException(beanName+"初始化异常",e);
         }
-
-        //设置属性之前判断该bean是否能够设置属性
-//        boolean isSetPropertyValues = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
-//        if(!isSetPropertyValues){
-//            return bean;
-//        }
-
-        //允许在bean实例化之后，对bean属性进行修改
-//        applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
-
-        //调用applyPropertyValues方法为bean设置属性值
-        applyPropertyValues(beanName, bean,beanDefinition);
-
-        //实例化bean之后执行初始化方法
-        bean = initializeBean(beanName, bean,beanDefinition);
 
         //注册带有销毁方法的bean
         registerDisposableBeanIfNecessary(beanName,bean,beanDefinition);
@@ -112,16 +112,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param bean
      * @param beanDefinition
      */
-//    protected void applyBeanPostProcessorsBeforeApplyingPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
-//        for (BeanPostProcessor beanPostProcessor: getBeanPostProcessors()) {
-//            if(beanPostProcessor instanceof InstantiationAwareBeanPostProcessor){
-//                PropertyValues propertyValues = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessPropertyValues(beanDefinition.getPropertyValues(), bean, beanName);
-//                for (PropertyValue pvs: propertyValues.getPropertyValueList()) {
-//                    beanDefinition.getPropertyValues().setPropertyValue(pvs);
-//                }
-//            }
-//        }
-//    }
+    protected void applyBeanPostProcessorsBeforeApplyingPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
+        for (BeanPostProcessor beanPostProcessor: getBeanPostProcessors()) {
+            if(beanPostProcessor instanceof InstantiationAwareBeanPostProcessor){
+                PropertyValues propertyValues = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessPropertyValues(beanDefinition.getPropertyValues(), bean, beanName);
+                for (PropertyValue pvs: propertyValues.getPropertyValueList()) {
+                    beanDefinition.getPropertyValues().setPropertyValue(pvs);
+                }
+            }
+        }
+    }
 
     /**
      * 判断设置属性之前判断该bean是否能够设置属性
@@ -130,18 +130,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param bean
      * @return
      */
-//    protected boolean applyBeanPostProcessorsAfterInstantiation(String beanName, Object bean) {
-//        boolean isSetPropertyValues = true;
-//        for (BeanPostProcessor beanPostProcessor: getBeanPostProcessors()) {
-//            if(beanPostProcessor instanceof InstantiationAwareBeanPostProcessor){
-//                if(!((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessAfterInstantiation(bean,beanName)){
-//                    isSetPropertyValues = false;
-//                    break;
-//                }
-//            }
-//        }
-//        return isSetPropertyValues;
-//    }
+    protected boolean applyBeanPostProcessorsAfterInstantiation(String beanName, Object bean) {
+        boolean isSetPropertyValues = true;
+        for (BeanPostProcessor beanPostProcessor: getBeanPostProcessors()) {
+            if(beanPostProcessor instanceof InstantiationAwareBeanPostProcessor){
+                if(!((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessAfterInstantiation(bean,beanName)){
+                    isSetPropertyValues = false;
+                    break;
+                }
+            }
+        }
+        return isSetPropertyValues;
+    }
 
     /**
      * 注册有销毁方法的bean，即bean继承自DisposableBean或有自定义的销毁方法
