@@ -16,6 +16,8 @@ import com.chr.spring.framework.beans.factory.beanFacotry.intf.InstantiationAwar
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * InstantiationAwareBeanPostProcessor接口的默认实现
@@ -23,6 +25,8 @@ import java.util.Collection;
  */
 public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
     private DefaultListableBeanFactory beanFactory;
+
+    private Set<Object> earlyProxyReferences = new HashSet<>();
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeanException {
@@ -35,7 +39,20 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
     }
 
     @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) throws BeanException {
+        earlyProxyReferences.add(beanName);
+        return wrapIfNecessary(bean, beanName);
+    }
+
+    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeanException {
+        if(!earlyProxyReferences.contains(beanName)){
+            return wrapIfNecessary(bean,beanName);
+        }
+        return bean;
+    }
+
+    protected Object wrapIfNecessary(Object bean, String beanName){
         if(isInfrastructureClass(bean.getClass())){
             return bean;
         }

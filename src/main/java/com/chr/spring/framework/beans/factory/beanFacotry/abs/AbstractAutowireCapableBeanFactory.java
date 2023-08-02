@@ -76,6 +76,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Object bean = null;
         try {
             bean = createBeanInstance(beanDefinition);
+
+            if(!beanDefinition.getScope().equals("prototype")){
+                Object finalBean = bean;
+                //实例化bean存入三级缓存中
+                addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName,beanDefinition,finalBean));
+            }
             //设置属性之前判断该bean是否能够设置属性
             boolean isSetPropertyValues = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
             if(!isSetPropertyValues){
@@ -98,11 +104,29 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         //注册带有销毁方法的bean
         registerDisposableBeanIfNecessary(beanName,bean,beanDefinition);
 
+        Object exposedObject = bean;
         //判断该bean是否为单例bean，若是则将该bean存入单例池中
-        if(!beanDefinition.getScope().equals("prototype")){
-            addSingletonBean(beanName, bean);
+        if (!beanDefinition.getScope().equals("prototype")) {
+            //此处才真正产生一个代理对象
+            //如果有代理对象，则获取代理对象
+            exposedObject = getSingletonBean(beanName);
+            addSingletonBean(beanName, exposedObject);
         }
         return bean;
+    }
+
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) {
+        Object exposedObject = bean;
+        for (BeanPostProcessor bp : getBeanPostProcessors()) {
+            if (bp instanceof InstantiationAwareBeanPostProcessor) {
+                exposedObject = ((InstantiationAwareBeanPostProcessor) bp).getEarlyBeanReference(exposedObject, beanName);
+                if (exposedObject == null) {
+                    return null;
+                }
+            }
+        }
+
+        return exposedObject;
     }
 
     /**

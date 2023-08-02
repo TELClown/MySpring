@@ -3,6 +3,7 @@ package service;
 import com.chr.spring.framework.aop.intf.advice.MethodAfterAdvice;
 import com.chr.spring.framework.aop.intf.advice.MethodAroundAdvice;
 import com.chr.spring.framework.aop.intf.advice.MethodBeforeAdvice;
+import com.chr.spring.framework.context.stereotyep.Component;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
