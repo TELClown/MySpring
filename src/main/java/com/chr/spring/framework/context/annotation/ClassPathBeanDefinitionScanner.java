@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateComponentProvider {
     private BeanDefinitionRegistry registry;
-    public static final String AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME = "org.springframework.context.annotation.internalAutowiredAnnotationProcessor";
+    public static final String AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME = "AutowiredAnnotationBeanPostProcessor";
     public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry) {
         this.registry = registry;
     }
@@ -23,7 +23,6 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
                 resolveBeanScope(beanDefinition);
                 //设置bean name
                 String beanName = resolveBeanName(beanDefinition);
-//                System.out.println(beanName);
                 //注册bean
                 registry.registerBeanDefinition(beanName,beanDefinition);
             }

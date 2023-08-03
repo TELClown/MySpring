@@ -1,8 +1,7 @@
 package service;
 
-import com.chr.spring.framework.context.stereotyep.Component;
-import com.chr.spring.framework.context.stereotyep.Scope;
 import com.chr.spring.framework.beans.factory.InitializingBean;
+import com.chr.spring.test.ArticleService;
 
 public class PayService implements InitializingBean{
     public ArticleService getArticleService() {

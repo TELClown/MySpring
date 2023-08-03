@@ -1,13 +1,15 @@
-package service;
+package com.chr.spring.test;
 
+import com.chr.spring.framework.beans.factory.InitializingBean;
 import com.chr.spring.framework.beans.factory.beanFacotry.anno.Autowired;
 import com.chr.spring.framework.beans.factory.beanFacotry.anno.Value;
 import com.chr.spring.framework.context.stereotyep.Component;
-import com.chr.spring.interface_.BeanNameAware;
-import com.chr.spring.interface_.InitializingBean;
 
 @Component
-public class UserService implements BeanNameAware, InitializingBean {
+public class UserService implements InitializingBean {
+
+    @Autowired
+    ArticleService articleService;
 
     @Value("user1")
     private String beanName;
@@ -20,18 +22,11 @@ public class UserService implements BeanNameAware, InitializingBean {
         return articleService;
     }
 
-    @Autowired
-    ArticleService articleService;
     @Value("1")
     private Integer num;
 
     public String getBeanName() {
         return beanName;
-    }
-
-    @Override
-    public void setBeanName(String beanName) {
-        this.beanName = beanName;
     }
 
     @Override
