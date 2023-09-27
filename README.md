@@ -7,7 +7,7 @@
 
 ### Bean生命周期
 
-![Bean生命周期](./bean.png)
+![Bean生命周期](./bean.jpg)
 
 ### 循环依赖
 
