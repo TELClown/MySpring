@@ -30,4 +30,4 @@ Component注解可以为Bean指定名称，同时还实现了Value注解，为Be
 
 ## AOP
 
-通过AOP实现了三种通知类型接口（MethodBeforeAdvice，MethodAfter，Advice，MethodAroundAdvice），简单实现了切点表达式，通过解析字符串表达式对类和方法进行匹配，结果为boolean值，将结果返回，判断该类是否符合切点表达式。符合切点表达式则会进行动态代理，对目标方法进行方法增强。
+通过AOP实现了三种通知类型接口（MethodBeforeAdvice，MethodAfterAdvice，MethodAroundAdvice），简单实现了切点表达式，通过解析字符串表达式对类和方法进行匹配，结果为boolean值，将结果返回，判断该类是否符合切点表达式。符合切点表达式则会进行动态代理，对目标方法进行方法增强。
